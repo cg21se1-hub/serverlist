@@ -12,13 +12,6 @@
       max-width: 800px;
       margin: auto;
     }
-    .embed-box {
-      background-color: #232428;
-      border-left: 5px solid #4ade80;
-      padding: 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-    }
     .player-card {
       background-color: #1e1f23;
       padding: 10px 15px;
@@ -81,6 +74,12 @@
       border-radius: 10px;
       margin-top: 10px;
     }
+    .flex-row {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body>
@@ -105,7 +104,7 @@
     <button onclick="searchPlayer()">Cari</button>
   </div>
 
-  <div class="embed-box" id="content">Silakan cari pemain di atas.</div>
+  <div id="content">Silakan cari pemain di atas.</div>
 
   <script>
     async function searchPlayer() {
@@ -146,14 +145,18 @@
 
         let html = `
           <h2>${name}</h2>
-          <p class="small-text">Player Aktif: ${totalPlayers} / ${maxPlayers}</p>
         `;
 
         if (iconUrl) {
           html += `<img src="${iconUrl}" alt="Server Icon" style="max-width:60px; float:right; margin-top:-40px;">`;
         }
 
-        html += `<p><strong>Player Ditemukan:</strong> ${matchedPlayers.length}</p>`;
+        html += `
+          <div class="flex-row">
+            <p><strong>Player Ditemukan:</strong> ${matchedPlayers.length}</p>
+            <p class="small-text">Player Aktif: ${totalPlayers} / ${maxPlayers}</p>
+          </div>
+        `;
 
         if (matchedPlayers.length > 0) {
           matchedPlayers.forEach(p => {
