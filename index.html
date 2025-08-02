@@ -44,22 +44,59 @@
       font-size: 0.9em;
       color: #ccc;
     }
+    .form-box {
+      background: #1e1f23;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    select, input, button {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      border-radius: 6px;
+      border: none;
+      font-size: 1em;
+    }
+    button {
+      background-color: #4ade80;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <div class="embed-box" id="content">Mengambil data server...</div>
+
+  <div class="form-box">
+    <h2>🔍 Cari Pemain di Server</h2>
+    <label for="server">Pilih Server:</label>
+    <select id="server">
+      <option value="bak4pl">IDP</option>
+      <option value="zmn9ab">Rolex City</option>
+      <option value="abc123">Contoh Server</option>
+    </select>
+
+    <label for="player">Nama Pemain:</label>
+    <input type="text" id="player" placeholder="Misal: budi">
+
+    <button onclick="searchPlayer()">Cari</button>
+  </div>
+
+  <div class="embed-box" id="content">Silakan cari pemain di atas.</div>
 
   <script>
-    async function loadServerInfo() {
-      const params = new URLSearchParams(window.location.search);
-      const serverId = params.get('server');
-      const searchName = params.get('player');
-      const content = document.getElementById('content');
+    async function searchPlayer() {
+      const serverId = document.getElementById("server").value;
+      const playerName = document.getElementById("player").value.trim();
+      const content = document.getElementById("content");
 
-      if (!serverId) {
-        content.innerHTML = "<p>❌ Parameter 'server' tidak ditemukan.</p>";
+      if (!playerName) {
+        content.innerHTML = `<p>❌ Masukkan nama pemain yang ingin dicari.</p>`;
         return;
       }
+
+      content.innerHTML = "🔄 Mengambil data...";
 
       try {
         const response = await fetch(`https://servers-frontend.fivem.net/api/servers/single/${serverId}`);
@@ -79,12 +116,11 @@
         const iconUrl = serverData?.iconVersion
           ? `https://servers-frontend.fivem.net/api/servers/icon/${serverId}/${serverData.iconVersion}.png`
           : null;
+
         const bannerDetail = serverData?.vars?.banner_detail || null;
 
-        const keyword = searchName?.toLowerCase();
-        const matchedPlayers = keyword
-          ? players.filter(p => p.name?.toLowerCase().includes(keyword))
-          : [];
+        const keyword = playerName.toLowerCase();
+        const matchedPlayers = players.filter(p => p.name?.toLowerCase().includes(keyword));
 
         let html = `
           <h2>${name}</h2>
@@ -95,8 +131,9 @@
           html += `<img src="${iconUrl}" alt="Server Icon" style="max-width:60px; float:right; margin-top:-40px;">`;
         }
 
-        if (keyword) {
-          html += `<p><strong>Player Ditemukan:</strong> ${matchedPlayers.length}</p>`;
+        html += `<p><strong>Player Ditemukan:</strong> ${matchedPlayers.length}</p>`;
+
+        if (matchedPlayers.length > 0) {
           matchedPlayers.forEach(p => {
             html += `
               <div class="player-card">
@@ -106,7 +143,7 @@
             `;
           });
         } else {
-          html += `<p>Tidak ada parameter player untuk dicari.</p>`;
+          html += `<p>Tidak ditemukan pemain dengan nama "${playerName}".</p>`;
         }
 
         if (bannerDetail) {
@@ -120,8 +157,6 @@
         content.innerHTML = `<p>❌ Gagal mengambil data: ${err.message}</p>`;
       }
     }
-
-    loadServerInfo();
   </script>
 </body>
 </html>
