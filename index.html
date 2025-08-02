@@ -12,7 +12,7 @@
       max-width: 800px;
       margin: auto;
     }
-    h1, h2 {
+    h1, h2, h3 {
       color: #4ade80;
     }
     .error {
@@ -43,6 +43,7 @@
     async function loadServerInfo() {
       const params = new URLSearchParams(window.location.search);
       const serverId = params.get('server');
+      const searchName = params.get('player');
       const content = document.getElementById('content');
 
       if (!serverId) {
@@ -86,11 +87,31 @@
         }
 
         if (players.length > 0) {
-          html += `<h3>🧍 Daftar Pemain:</h3><ul class="player-list">`;
-          players.forEach(player => {
-            html += `<li>${player.name || "Tanpa nama"} (${player.id})</li>`;
-          });
-          html += `</ul>`;
+          if (searchName) {
+            const keyword = searchName.toLowerCase();
+            const matchedPlayers = players.filter(p => p.name?.toLowerCase().includes(keyword));
+
+            html += `<h3>🔍 Pencarian Nama: "${searchName}"</h3>`;
+            html += `<p>Ditemukan <strong>${matchedPlayers.length}</strong> pemain:</p>`;
+
+            if (matchedPlayers.length > 0) {
+              html += `<ul class="player-list">`;
+              matchedPlayers.forEach(player => {
+                html += `<li>${player.name} (${player.id})</li>`;
+              });
+              html += `</ul>`;
+            } else {
+              html += `<p class="error">❌ Tidak ditemukan pemain dengan nama yang mengandung "${searchName}".</p>`;
+            }
+
+          } else {
+            html += `<h3>🧍 Daftar Pemain:</h3><ul class="player-list">`;
+            players.forEach(player => {
+              html += `<li>${player.name || "Tanpa nama"} (${player.id})</li>`;
+            });
+            html += `</ul>`;
+          }
+
         } else {
           html += `<p class="error">❌ Tidak ada pemain online saat ini.</p>`;
         }
