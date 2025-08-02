@@ -30,8 +30,8 @@
     }
     img {
       max-width: 100%;
-      margin-top: 15px;
       border-radius: 8px;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -43,7 +43,6 @@
     async function loadServerInfo() {
       const params = new URLSearchParams(window.location.search);
       const serverId = params.get('server');
-
       const content = document.getElementById('content');
 
       if (!serverId) {
@@ -61,26 +60,29 @@
         const ip = serverData?.connectEndPoints?.[0] || "Tidak diketahui";
         const name = serverData?.vars?.sv_projectName || "Tidak diketahui";
         const discord = serverData?.vars?.Discord || "Tidak ada";
-        const maxClients = serverData?.vars?.sv_maxclients || "Tidak diketahui";
-        const banner = serverData?.vars?.banner_detail || null;
-        const iconVersion = serverData?.iconVersion;
         const players = serverData?.players || [];
+
+        const iconVersion = serverData?.iconVersion || null;
+        const bannerDetail = serverData?.vars?.banner_detail || null;
+
+        const iconUrl = iconVersion
+          ? `https://servers-frontend.fivem.net/api/servers/icon/${serverId}/${iconVersion}.png`
+          : null;
 
         let html = `
           <h2>${name}</h2>
           <p><strong>Server ID:</strong> ${serverId}</p>
           <p><strong>IP:</strong> <a href="fivem://connect/${ip}">${ip}</a></p>
           <p><strong>Discord:</strong> ${discord}</p>
-          <p><strong>Max Clients:</strong> ${maxClients}</p>
-          <p><strong>Players Online:</strong> ${players.length} / ${maxClients}</p>
+          <p><strong>Total Pemain:</strong> ${players.length}</p>
         `;
 
-        if (banner) {
-          html += `<img src="${banner}" alt="Banner Server">`;
+        if (iconUrl) {
+          html += `<p><strong>Ikon Server:</strong><br><img src="${iconUrl}" alt="Server Icon"></p>`;
         }
 
-        if (iconVersion) {
-          html += `<img src="https://servers-frontend.fivem.net/api/servers/icon/${serverId}/${iconVersion}.png" alt="Icon Server">`;
+        if (bannerDetail) {
+          html += `<p><strong>Banner Server:</strong><br><img src="${bannerDetail}" alt="Server Banner"></p>`;
         }
 
         if (players.length > 0) {
