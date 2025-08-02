@@ -28,6 +28,11 @@
       margin-top: 10px;
       padding-left: 20px;
     }
+    img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -38,7 +43,6 @@
     async function loadServerInfo() {
       const params = new URLSearchParams(window.location.search);
       const serverId = params.get('server');
-
       const content = document.getElementById('content');
 
       if (!serverId) {
@@ -58,6 +62,13 @@
         const discord = serverData?.vars?.Discord || "Tidak ada";
         const players = serverData?.players || [];
 
+        const iconVersion = serverData?.iconVersion || null;
+        const bannerDetail = serverData?.vars?.banner_detail || null;
+
+        const iconUrl = iconVersion
+          ? `https://servers-frontend.fivem.net/api/servers/icon/${serverId}/${iconVersion}.png`
+          : null;
+
         let html = `
           <h2>${name}</h2>
           <p><strong>Server ID:</strong> ${serverId}</p>
@@ -65,6 +76,14 @@
           <p><strong>Discord:</strong> ${discord}</p>
           <p><strong>Total Pemain:</strong> ${players.length}</p>
         `;
+
+        if (iconUrl) {
+          html += `<p><strong>Ikon Server:</strong><br><img src="${iconUrl}" alt="Server Icon"></p>`;
+        }
+
+        if (bannerDetail) {
+          html += `<p><strong>Banner Server:</strong><br><img src="${bannerDetail}" alt="Server Banner"></p>`;
+        }
 
         if (players.length > 0) {
           html += `<h3>🧍 Daftar Pemain:</h3><ul class="player-list">`;
