@@ -5,39 +5,49 @@
   <title>Live Info Server FiveM</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #1e1e1e;
-      color: #f0f0f0;
-      padding: 20px;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #2b2d31;
+      color: #ffffff;
+      padding: 30px;
       max-width: 800px;
       margin: auto;
     }
-    h1, h2, h3 {
+    .embed-box {
+      background-color: #232428;
+      border-left: 5px solid #4ade80;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .player-card {
+      background-color: #1e1f23;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .player-card code {
       color: #4ade80;
     }
-    .error {
-      color: #f87171;
-    }
-    .info-box {
-      background: #2d2d2d;
-      border-radius: 10px;
-      padding: 15px;
-      margin-top: 10px;
-    }
-    .player-list {
-      margin-top: 10px;
-      padding-left: 20px;
-    }
-    img {
+    .footer-img {
       max-width: 100%;
       border-radius: 8px;
-      margin-top: 10px;
+      margin-top: 15px;
+    }
+    a {
+      color: #4ade80;
+      text-decoration: none;
+    }
+    h1, h2 {
+      margin: 0;
+    }
+    .small-text {
+      font-size: 0.9em;
+      color: #ccc;
     }
   </style>
 </head>
 <body>
-  <h1>🔎 Informasi Server FiveM</h1>
-  <div id="content" class="info-box">Mengambil data server...</div>
+  <div class="embed-box" id="content">Mengambil data server...</div>
 
   <script>
     async function loadServerInfo() {
@@ -47,7 +57,7 @@
       const content = document.getElementById('content');
 
       if (!serverId) {
-        content.innerHTML = "<p class='error'>❌ Parameter 'server' tidak ditemukan di URL.</p>";
+        content.innerHTML = "<p>❌ Parameter 'server' tidak ditemukan.</p>";
         return;
       }
 
@@ -63,64 +73,48 @@
         const discord = serverData?.vars?.Discord || "Tidak ada";
         const players = serverData?.players || [];
 
-        const iconVersion = serverData?.iconVersion || null;
+        const iconUrl = serverData?.iconVersion
+          ? `https://servers-frontend.fivem.net/api/servers/icon/${serverId}/${serverData.iconVersion}.png`
+          : null;
         const bannerDetail = serverData?.vars?.banner_detail || null;
 
-        const iconUrl = iconVersion
-          ? `https://servers-frontend.fivem.net/api/servers/icon/${serverId}/${iconVersion}.png`
-          : null;
+        const keyword = searchName?.toLowerCase();
+        const matchedPlayers = keyword
+          ? players.filter(p => p.name?.toLowerCase().includes(keyword))
+          : [];
 
         let html = `
           <h2>${name}</h2>
-          <p><strong>Server ID:</strong> ${serverId}</p>
-          <p><strong>IP:</strong> <a href="fivem://connect/${ip}">${ip}</a></p>
-          <p><strong>Discord:</strong> ${discord}</p>
-          <p><strong>Total Pemain:</strong> ${players.length}</p>
+          <p class="small-text">Player Aktif: ${players.length} / ${serverData?.vars?.sv_maxclients || "?"}</p>
         `;
 
         if (iconUrl) {
-          html += `<p><strong>Ikon Server:</strong><br><img src="${iconUrl}" alt="Server Icon"></p>`;
+          html += `<img src="${iconUrl}" alt="Server Icon" style="max-width:60px; float:right; margin-top:-40px;">`;
+        }
+
+        if (keyword) {
+          html += `<p><strong>Player Ditemukan:</strong> ${matchedPlayers.length}</p>`;
+          matchedPlayers.forEach(p => {
+            html += `
+              <div class="player-card">
+                <p><code>(${p.id})</code> ${p.name}</p>
+                <p>Discord: @Tidak ditemukan</p>
+              </div>
+            `;
+          });
+        } else {
+          html += `<p>Tidak ada parameter player untuk dicari.</p>`;
         }
 
         if (bannerDetail) {
-          html += `<p><strong>Banner Server:</strong><br><img src="${bannerDetail}" alt="Server Banner"></p>`;
-        }
-
-        if (players.length > 0) {
-          if (searchName) {
-            const keyword = searchName.toLowerCase();
-            const matchedPlayers = players.filter(p => p.name?.toLowerCase().includes(keyword));
-
-            html += `<h3>🔍 Pencarian Nama: "${searchName}"</h3>`;
-            html += `<p>Ditemukan <strong>${matchedPlayers.length}</strong> pemain:</p>`;
-
-            if (matchedPlayers.length > 0) {
-              html += `<ul class="player-list">`;
-              matchedPlayers.forEach(player => {
-                html += `<li>${player.name} (${player.id})</li>`;
-              });
-              html += `</ul>`;
-            } else {
-              html += `<p class="error">❌ Tidak ditemukan pemain dengan nama yang mengandung "${searchName}".</p>`;
-            }
-
-          } else {
-            html += `<h3>🧍 Daftar Pemain:</h3><ul class="player-list">`;
-            players.forEach(player => {
-              html += `<li>${player.name || "Tanpa nama"} (${player.id})</li>`;
-            });
-            html += `</ul>`;
-          }
-
-        } else {
-          html += `<p class="error">❌ Tidak ada pemain online saat ini.</p>`;
+          html += `<img src="${bannerDetail}" alt="Banner" class="footer-img">`;
         }
 
         content.innerHTML = html;
 
       } catch (err) {
         console.error(err);
-        content.innerHTML = `<p class="error">❌ Gagal mengambil data dari server: ${err.message}</p>`;
+        content.innerHTML = `<p>❌ Gagal mengambil data: ${err.message}</p>`;
       }
     }
 
