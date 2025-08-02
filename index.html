@@ -73,6 +73,9 @@
         const discord = serverData?.vars?.Discord || "Tidak ada";
         const players = serverData?.players || [];
 
+        const totalPlayers = serverData?.clients || 0;
+        const maxPlayers = serverData?.sv_maxclients || "?";
+
         const iconUrl = serverData?.iconVersion
           ? `https://servers-frontend.fivem.net/api/servers/icon/${serverId}/${serverData.iconVersion}.png`
           : null;
@@ -85,7 +88,7 @@
 
         let html = `
           <h2>${name}</h2>
-          <p class="small-text">Player Aktif: ${players.length} / ${serverData?.vars?.sv_maxclients || "?"}</p>
+          <p class="small-text">Player Aktif: ${totalPlayers} / ${maxPlayers}</p>
         `;
 
         if (iconUrl) {
